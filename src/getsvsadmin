@@ -1,0 +1,20 @@
+#!/bin/sh
+
+if [ -z $1 ]
+then
+	echo "usage: $0 yournick"
+	exit 1
+fi
+
+echo
+echo "Registered svsadmins:"
+
+sqlite3 opensvs.db << EOF
+insert into permissions (user, perms) select user,3 from nicks where name='$1';
+select permissions.perms, nicks.name from permissions
+ left join nicks on nicks.user=permissions.user
+ group by permissions.user;
+EOF
+
+echo
+

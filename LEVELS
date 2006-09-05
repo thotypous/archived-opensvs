@@ -1,0 +1,35 @@
+This document briefly describes the ChanServ levels and behaviour.
+
+Every user with level >= 3 can operate with the access list, given that:
+   - When changing or deleting an user, this user must have a smaller
+     level. When changing the level of an user, the new level must
+     be less than or equal to the level of the user that is doing
+     the change.
+   - When adding new users, the new level must be less than or equal to
+     the level of the user that is adding the another.
+   - When operating with itself, the user can only delete itself from
+     the access list.
+
+Every user in the access list can:
+   - Do /ChanServ unban #channel
+   - View the access list and the akick list.
+   - Change the channel topic or modes when with op status.
+
+Every user with level >= 1 can:
+   - Do /ChanServ voice #channel
+
+Every user with level >= 2 can:
+   - Do /ChanServ op #channel.
+   - Do /ChanServ resetmodes #channel.
+   
+Every user with level >= 100 can:
+   - Operate with the akick list.
+
+Only the channel founder can:
+   - Do /ChanServ set #channel founder nick
+   - Do /ChanServ drop #channel
+
+When the user of a channel founder is dropped, the successor is chosen
+as the user of greater level in the channel access list. If there is
+no users in the access list, the channel is dropped.
+

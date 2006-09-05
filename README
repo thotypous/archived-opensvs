@@ -1,0 +1,21 @@
+Opensvs is a lightweight irc services for the Hybrid ircd OFTC branch developed
+by the Openbrasil Network Developing Team and licensed under GPL. See CREDITS
+and LICENSE for details.
+
+Compiling and installing Opensvs:
+  - Go to the src, edit the config.h file and set options you find suitable for
+    your irc network.
+  - Type make to compile Opensvs. You will need the sqlite3 libraries, that can
+    be found at http://www.sqlite.org.
+  - Edit opensvs.sql and change the options in the config table if you need it.
+  - Type the following command for generating the database:
+      sqlite3 opensvs.db < opensvs.sql
+  - Start the ./opensvs executable for putting the services up.
+  - Register a nick for you by using /NickServ register password in your irc
+    client connected to your network.
+  - Type the following command for getting svsadmin in the network:
+      ./getsvsadmin mynick
+    After issuing this command, it should print your nick in the output.
+  - Just move the files opensvs and opensvs.db for the directory in which
+    you'd like to install Opensvs.
+
