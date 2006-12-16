@@ -744,9 +744,12 @@ void chanserv_pvt(char *sender, char *cmd, char *args) {
 
 static int chanserv_tb_cb(void *arg, int argc, char **argv, char **colname) {
 	if(argv[1]) {
-		fprintf(socket_fp, ":ChanServ TBURST %ld %s %ld %s :%s\n",
-				time(0),
-				(char *)arg, time(0),
+		/* Use very low false timestamp to guarantee topic is updated.
+		 * Thanks to cryogen from OFTC for solving the issue!
+		 */
+		fprintf(socket_fp, ":" CONFIG_SVS_SERVER " TBURST "
+				"1 %s 1 %s :%s\n",
+				(char *)arg,
 				argv[0] ? argv[0] : "dropped-nick",
 				argv[1]);
 	}
