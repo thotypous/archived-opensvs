@@ -56,11 +56,12 @@ int binsearch(trap_entry *tbl, int f, char *sender, char *cmd, char *args) {
 char *md5(char *buf) {
 	
 	struct MD5Context ctx;
-	unsigned char digest[16], *p;
+	unsigned char digest[16];
+	char *p;
 	int i;
 	
 	MD5Init(&ctx);
-	MD5Update(&ctx, buf, strlen(buf));
+	MD5Update(&ctx, (unsigned char*)buf, strlen(buf));
 	MD5Final(digest, &ctx);
 	
 	for(p = util_md5buf, i = 0; i < 16; p += 2, i++)
