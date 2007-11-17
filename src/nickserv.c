@@ -40,7 +40,7 @@ static void nickserv_drop(char *sender, char *cmd, char *args) {
 	
 	if(!nick || !*nick || !strcmp(sender, nick)) {
 		dbexec("delete from nicks"
-		       " where name='%s' and identified=1;",
+		       " where name='%q' and identified=1;",
 		       0, 0, 0, sender);
 		if(sqlite3_changes(db)) {
 			fprintf(socket_fp, "SVSMODE %s :-R\n", sender);
@@ -55,7 +55,7 @@ static void nickserv_drop(char *sender, char *cmd, char *args) {
 		int perms = 0;
 		
 		dbexec("select perms from permissions where user=(select user"
-			" from nicks where name='%s' and identified=1);",
+			" from nicks where name='%q' and identified=1);",
 			getint_cb, &perms, 0, sender);
 
 		if(!(perms & SVSADMIN_PERM_DROP)) {
@@ -95,7 +95,7 @@ static void nickserv_forbid(char *sender, char *cmd, char *args) {
 		return;
 	
 	dbexec("select perms from permissions where user=(select user"
-		" from nicks where name='%s' and identified=1);",
+		" from nicks where name='%q' and identified=1);",
 		getint_cb, &perms, 0, sender);
 	
 	if(!perms) {
@@ -160,7 +160,7 @@ static void nickserv_ghost(char *sender, char *cmd, char *args) {
 		"update nicks set identified=0 where"
 		" name='%q' and"
 		" (select count(*) from users where"
-		"  id=user and password='%s')=1;",
+		"  id=user and password='%q')=1;",
 		0, 0, 0,
 		nick, md5(password)
 	      );
@@ -198,10 +198,10 @@ static void nickserv_group(char *sender, char *cmd, char *args) {
 	
 	dbexec(
 		"insert into nicks (name,user,regtime,identified)"
-		" select '%s',user,%d,1 from nicks where"
+		" select '%q',user,%d,1 from nicks where"
 		"  name='%q' and"
 		"  (select count(*) from users where"
-		"   id=user and password='%s')=1",
+		"   id=user and password='%q')=1",
 		0, 0, 0,
 		sender, time(0), nick, md5(password)
 	      );
@@ -259,9 +259,9 @@ static void nickserv_identify(char *sender, char *cmd, char *args) {
 
 	dbexec(
 		"update nicks set identified=1 where"
-		" name='%s' and"
+		" name='%q' and"
 		" (select count(*) from users where"
-		"  id=user and password='%s')=1;",
+		"  id=user and password='%q')=1;",
 		0, 0, 0,
 		sender, md5(password)
 	      );
@@ -318,7 +318,7 @@ static int nickserv_info_cb(void *arg, int argc, char **argv, char **colname) {
 	}
 	
 	memset(buf, 0, sizeof(buf));
-	dbexec("select name from nicks where user=%s and name!='%s'"
+	dbexec("select name from nicks where user=%q and name!='%q'"
 			" limit (select value from config"
 			"  where key='info_aliases');",
 			nickserv_info_aliases_cb, buf, 0, argv[2], argv[0]);
@@ -367,9 +367,9 @@ static void nickserv_register(char *sender, char *cmd, char *args) {
 	dbexec(
 		"begin;"
 		"insert into users (password,email,killprot)"
-		" values('%s','%q',0);"
+		" values('%q','%q',0);"
 		"insert into nicks (name,user,regtime,identified)"
-		" values('%s',last_insert_rowid(),%d,1);"
+		" values('%q',last_insert_rowid(),%d,1);"
 		"commit;",
 		0, 0, 0,
 		md5(password), email, sender, time(0)
@@ -396,9 +396,9 @@ static void nickserv_set(char *sender, char *cmd, char *args) {
 
 	if(!strcmp(cmd, "password") && *args) {
 		dbexec(
-			"update users set password='%s' where"
+			"update users set password='%q' where"
 			" id=(select user from nicks"
-			"  where name='%s' and identified=1);",
+			"  where name='%q' and identified=1);",
 			0, 0, 0,
 			md5(args), sender
 		      );
@@ -410,7 +410,7 @@ static void nickserv_set(char *sender, char *cmd, char *args) {
 		dbexec(
 			"update users set email='%q' where"
 			" id=(select user from nicks"
-			"  where name='%s' and identified=1);",
+			"  where name='%q' and identified=1);",
 			0, 0, 0,
 			args, sender
 		      );
@@ -428,7 +428,7 @@ static void nickserv_set(char *sender, char *cmd, char *args) {
 		dbexec(
 			"update users set killprot=%d where"
 			" id=(select user from nicks"
-			"  where name='%s' and identified=1);",
+			"  where name='%q' and identified=1);",
 			0, 0, 0,
 			killprot, sender
 		      );
@@ -469,7 +469,7 @@ static void nickserv_svsadmin(char *sender, char *cmd, char *args) {
 	}
 	
 	dbexec("select perms from permissions where user=(select user"
-		" from nicks where name='%s' and identified=1);",
+		" from nicks where name='%q' and identified=1);",
 		getint_cb, &perms, 0, sender);
 	
 	if(!perms) {
@@ -556,8 +556,8 @@ void nickserv_quit(char *sender, char *cmd, char *args) {
 	dbexec(
 		"update users set quitmsg='%q',lastseen=%d"
 		" where id=(select user from nicks"
-		"  where name='%s' and identified=1);"
-		"update nicks set identified=0 where name='%s';",
+		"  where name='%q' and identified=1);"
+		"update nicks set identified=0 where name='%q';",
 		0, 0, 0,
 		args+1, time(0), sender, sender
 	      );
@@ -616,8 +616,8 @@ void nickserv_nick(char *sender, char *cmd, char *args) {
 
 		dbexec(
 			"update nicks set identified=1"
-			" where name='%s' and user=(select user from nicks"
-			"  where name='%s' and identified=1);",
+			" where name='%q' and user=(select user from nicks"
+			"  where name='%q' and identified=1);",
 			0, 0, 0,
 			nick, sender
 		      );
@@ -626,7 +626,7 @@ void nickserv_nick(char *sender, char *cmd, char *args) {
 		
 		dbexec(
 			"update nicks set identified=0"
-			" where name='%s';",
+			" where name='%q';",
 			0, 0, 0,
 			sender
 		      );
@@ -654,7 +654,7 @@ void nickserv_nick(char *sender, char *cmd, char *args) {
 	dbexec(
 		"select nicks.name,nicks.identified,users.killprot from nicks"
 		" left join users on users.id=nicks.user"
-		" where nicks.name='%s';",
+		" where nicks.name='%q';",
 		nickserv_nick_cb, &identified, 0,
 		nick
 	      );

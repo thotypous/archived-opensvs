@@ -41,7 +41,7 @@ static int chanserv_get_level(char *nick, char *channel,
 
 	*user_id = *channel_id = *level = -1;
 
-	dbexec("select user from nicks where name='%s' and identified=1;",
+	dbexec("select user from nicks where name='%q' and identified=1;",
 			getint_cb, user_id, 0, nick);
 
 	if(*user_id == -1)
@@ -304,7 +304,7 @@ void chanserv_drop(char *sender, char *cmd, char *args) {
 	dbexec(
 		"delete from channels where name='%q' and"
 		" founder=(select user from nicks where"
-		"  name='%s' and identified=1);",
+		"  name='%q' and identified=1);",
 		0, 0, 0,
 		args, sender
 	      );
@@ -319,7 +319,7 @@ void chanserv_drop(char *sender, char *cmd, char *args) {
 		int perms = 0;
 		
 		dbexec("select perms from permissions where user=(select user"
-			" from nicks where name='%s' and identified=1);",
+			" from nicks where name='%q' and identified=1);",
 			getint_cb, &perms, 0, sender);
 
 		if(!(perms & SVSADMIN_PERM_DROP)) {
@@ -359,7 +359,7 @@ static void chanserv_forbid(char *sender, char *cmd, char *args) {
 	}
 	
 	dbexec("select perms from permissions where user=(select user"
-		" from nicks where name='%s' and identified=1);",
+		" from nicks where name='%q' and identified=1);",
 		getint_cb, &perms, 0, sender);
 	
 	if(!perms) {
@@ -520,7 +520,7 @@ void chanserv_op(char *sender, char *cmd, char *args) {
 		" where channel=(select id from channels"
 		"  where name='%q') and"
 		" user=(select user from nicks"
-		"  where name='%s' and identified=1) and"
+		"  where name='%q' and identified=1) and"
 		" level>=2;",
 		getint_cb, &res, 0,
 		args, sender
@@ -558,7 +558,7 @@ void chanserv_register(char *sender, char *cmd, char *args) {
 	dbexec(
 		"insert into channels (name,modes,founder,regtime)"
 		" select '%q','nt',user,%d from nicks where"
-		"  name='%s' and identified=1;",
+		"  name='%q' and identified=1;",
 		0, 0, 0,
 		args, time(0), sender
 	      );
@@ -588,7 +588,7 @@ void chanserv_resetmodes(char *sender, char *cmd, char *args) {
 		" where channel=(select id from channels"
 		"  where name='%q') and"
 		" user=(select user from nicks"
-		"  where name='%s' and identified=1) and"
+		"  where name='%q' and identified=1) and"
 		" level>=2;",
 		getint_cb, &res, 0,
 		args, sender
@@ -624,7 +624,7 @@ void chanserv_set(char *sender, char *cmd, char *args) {
 		dbexec(
 			"update channels set founder=(select user from nicks"
 			"  where name='%q') where name='%q' and"
-			" founder=(select user from nicks where name='%s' and"
+			" founder=(select user from nicks where name='%q' and"
 			"  identified=1);",
 			0, 0, 0,
 			param, channel, sender
@@ -662,7 +662,7 @@ void chanserv_unban(char *sender, char *cmd, char *args) {
 		" where channel=(select id from channels"
 		"  where name='%q') and"
 		" user=(select user from nicks"
-		"  where name='%s' and identified=1);",
+		"  where name='%q' and identified=1);",
 		getint_cb, &res, 0,
 		args, sender
 	      );
@@ -696,7 +696,7 @@ void chanserv_voice(char *sender, char *cmd, char *args) {
 		" where channel=(select id from channels"
 		"  where name='%q') and"
 		" user=(select user from nicks"
-		"  where name='%s' and identified=1) and"
+		"  where name='%q' and identified=1) and"
 		" level>=1;",
 		getint_cb, &res, 0,
 		args, sender
@@ -837,7 +837,7 @@ void chanserv_topic(char *sender, char *cmd, char *args) {
 	if(channel_id == -1)
 		return;
 	
-	dbexec("select user from nicks where name='%s' and identified=1;",
+	dbexec("select user from nicks where name='%q' and identified=1;",
 			getint_cb, &user_id, 0, sender);
 
 	dbexec("select count(*) from access where channel=%d and user=%d;",
@@ -879,7 +879,7 @@ void chanserv_mode(char *sender, char *cmd, char *args) {
 	dbexec("select modes from channels where id=%d;",
 			chanserv_mode_cb, &oldmode, 0, channel_id);
 	
-	dbexec("select user from nicks where name='%s' and identified=1;",
+	dbexec("select user from nicks where name='%q' and identified=1;",
 			getint_cb, &user_id, 0, sender);
 
 	dbexec("select count(*) from access where channel=%d and user=%d;",
